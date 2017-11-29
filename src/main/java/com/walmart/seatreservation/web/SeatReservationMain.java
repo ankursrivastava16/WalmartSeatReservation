@@ -70,7 +70,7 @@ public class SeatReservationMain {
 					"ankur3@ankur3.com");
 
 			System.out.println(ticketService.reserveSeats(
-					seatHold3.getSeatHoldId(), "ankur@ankur.com"));
+					seatHold3.getSeatHoldId(), "ankur3@ankur3.com"));
 
 			System.out.println("Seats availaible at present = "
 					+ ticketService.numSeatsAvailable());
