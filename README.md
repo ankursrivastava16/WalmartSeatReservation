@@ -9,8 +9,8 @@
 ## How to run
 
 * Please import the above project as a Maven project in Eclipse.
-* Go to to the project root folder in Terminal or Command Line and execute mvn clean install.
-* As its an exceutable jar , then run the command java -jar target\seatreservation.jar
+* Go to to the project root folder in Terminal or Command Line and execute "mvn clean install".
+* As its an exceutable jar , then run the command "java -jar target\seatreservation.jar".
 
 ## Result 
 
