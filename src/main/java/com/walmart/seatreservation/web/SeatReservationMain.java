@@ -58,9 +58,17 @@ public class SeatReservationMain {
 		
 		System.out.println(ticketService.reserveSeats(seatHold3.getSeatHoldId(), "ankur@ankur.com"));
 			
+		SeatHold seatHold4 = ticketService.findAndHoldSeats(9, "ankur4@ankur4.com");
+
 		
+		System.out.println(ticketService.reserveSeats(seatHold4.getSeatHoldId(), "ankur4@ankur4.com"));
 		
-		System.out.println("Do you want to quit.Type quit else No to go ahead with further bookings");
+	    SeatHold seatHold5 = ticketService.findAndHoldSeats(8, "ankur5@ankur5.com");
+
+		
+		System.out.println(ticketService.reserveSeats(seatHold5.getSeatHoldId(), "ankur5@ankur5.com"));
+		
+		System.out.println("Type quit to exit the application");
 		String message = inputMessage.nextLine();
 		if(message.equals("quit")){
 			System.out.println("quitting the reservation booking");

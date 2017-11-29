@@ -1,7 +1,8 @@
 package com.walmart.seatreservation.model;
 
-import java.sql.Timestamp;
+import org.springframework.stereotype.Component;
 
+@Component
 public class SeatHold  {
 	
 	private final Integer seatHoldId;

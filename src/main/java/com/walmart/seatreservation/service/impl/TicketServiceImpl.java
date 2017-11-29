@@ -2,29 +2,22 @@ package com.walmart.seatreservation.service.impl;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.PostConstruct;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
-import com.walmart.seatreservation.model.Seat;
-import com.walmart.seatreservation.model.SeatHold;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+
+import com.walmart.seatreservation.model.SeatHold;
 import com.walmart.seatreservation.service.TicketService;
 
 @Component
@@ -36,9 +29,9 @@ public class TicketServiceImpl implements TicketService {
 
 	int seatHoldId = 1;
 
-	Seat seat = new Seat(new Integer(1), new Integer(1));
 
-	ConcurrentHashMap<String, SeatHold> seatHoldMap = new ConcurrentHashMap();
+
+	ConcurrentHashMap<String, SeatHold> seatHoldMap = new ConcurrentHashMap<String, SeatHold>();
 
 	int seatsAvailaible = 0;
 
@@ -55,7 +48,7 @@ public class TicketServiceImpl implements TicketService {
 		}
 	}
 
-	ArrayList[][] table = new ArrayList[10][10];
+
 
 	/**
 	 * The number of seats in the venue that are neither held nor reserved
@@ -205,6 +198,7 @@ public class TicketServiceImpl implements TicketService {
 				Object[] colArray = colNumToStart.toArray();
 
 				int colnum = Integer.parseInt(colArray[0].toString());
+				System.out.println("reservedRow " + reservedRow);
 				System.out.println("colnum " + colnum);
 				System.out.println("reservedSeats " + reservedSeats);
 				for (int columstart = colnum; columstart <= reservedSeats; columstart++) {
@@ -227,6 +221,7 @@ public class TicketServiceImpl implements TicketService {
 				Object[] colArray = colNumToStart.toArray();
 
 				int colnum = Integer.parseInt(colArray[0].toString());
+				System.out.println("reservedRow " + reservedRow);
 				System.out.println("colnum " + colnum);
 				System.out.println("reservedSeats " + reservedSeats);
 				
@@ -246,11 +241,9 @@ public class TicketServiceImpl implements TicketService {
 			}
 		
        
-			System.out.print("Availaibilty Status");
+		
 
-		for (String value : myMultimapSeat.values()) {
-			System.out.print(value);
-		}
+	
 		System.out.print("\n");
 	}
 
