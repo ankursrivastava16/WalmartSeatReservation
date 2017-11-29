@@ -27,13 +27,13 @@ public class TicketServiceImpl implements TicketService {
 	@Autowired
 	private Environment environment;
 
-	int seatHoldId = 1;
-
-
+	int seatHoldId = 0;
 
 	ConcurrentHashMap<String, SeatHold> seatHoldMap = new ConcurrentHashMap<String, SeatHold>();
 
 	int seatsAvailaible = 0;
+
+	int reservedSeatsFinal = 0;
 
 	static Multimap<String, String> myMultimapSeat = null;
 
@@ -47,8 +47,6 @@ public class TicketServiceImpl implements TicketService {
 			}
 		}
 	}
-
-
 
 	/**
 	 * The number of seats in the venue that are neither held nor reserved
@@ -83,12 +81,14 @@ public class TicketServiceImpl implements TicketService {
 
 				long diffSeconds = diff / 1000 % 60;
 
-				if (diffSeconds < 30) {
-					System.out.println("Less than 30 sec between hold and reserved so valid .");
+				if (diffSeconds < 180) {
+					System.out
+							.println("Less than 180 sec between hold and reserved so valid .");
 					seatsAvailaible = seatsAvailaible
 							+ Integer.valueOf(entry.getValue().getNumOfSeats());
 				} else {
-					System.out.println("More than 30 sec between hold and reserved so invalid .Removing the key");
+					System.out
+							.println("More than 180 sec between hold and reserved so invalid .Removing the key");
 					seatHoldMap.remove(entry.getKey());
 
 				}
@@ -98,7 +98,7 @@ public class TicketServiceImpl implements TicketService {
 			}
 		}
 
-		return totalseats - seatsAvailaible;
+		return totalseats - reservedSeatsFinal;
 	}
 
 	/**
@@ -113,12 +113,15 @@ public class TicketServiceImpl implements TicketService {
 	 */
 
 	public SeatHold findAndHoldSeats(int numSeats, String customerEmail) {
+
 		// TODO Auto-generated method stub
+		seatHoldId++;
 		SeatHold seatHold = new SeatHold(seatHoldId,
 				System.currentTimeMillis(), customerEmail, numSeats);
 		String timeStampKey = getCurrentTimeStamp();
 		seatHoldMap.put(timeStampKey, seatHold);
 		// seatHoldIdMap.put(timeStampKey, seatHold);
+
 		return seatHold;
 	}
 
@@ -150,8 +153,8 @@ public class TicketServiceImpl implements TicketService {
 		reservedSeats = reservedSeats + numSeatsBooking;
 		if (seatHoldExists) {
 			getSeatAvailaibiltyInfo(reservedSeats, customerEmail);
-			bookingMessage = "Booking Done ";
-			
+			bookingMessage = "Booking Completed for  seatHoldId = " + seatHoldId;
+
 		} else {
 			System.out.println(" Seat Hold Id Expired");
 			bookingMessage = "Booking Not Done . Seat Hold Id Expired ";
@@ -164,86 +167,86 @@ public class TicketServiceImpl implements TicketService {
 	}
 
 	private void getSeatAvailaibiltyInfo(int reservedSeats, String customerEmail) {
-		
+
 		/**
 		 * Under the assumption reservedSeats will always be less than 10
 		 * 
 		 */
 		int reservedRow = 0;
 		int reservedRow2 = 0;
-		int rowNum1 =0;
-		
+		int rowNum1 = 0;
+
 		int seatavlrow1 = 0;
-		
-		
+
 		Collection<String> rowNumAvlSeats = null;
-		
-		for(String value : myMultimapSeat.keys()) {
-			//take the rowkey
+
+		for (String value : myMultimapSeat.keys()) {
+			// take the rowkey
 			rowNum1 = Integer.parseInt(value);
 			break;
+		}
+
+		rowNumAvlSeats = myMultimapSeat.get(Integer.toString(rowNum1));
+
+		if (rowNumAvlSeats.size() >= reservedSeats) {
+
+			reservedRow = rowNum1;
+			System.out.println("reservedRow " + reservedRow);
+
+			Collection<String> colNumToStart = myMultimapSeat.get(Integer
+					.toString(reservedRow));
+			Object[] colArray = colNumToStart.toArray();
+
+			int colnum = Integer.parseInt(colArray[0].toString());
+			System.out.println("reservedRow " + reservedRow);
+			System.out.println("colnum " + colnum);
+			System.out.println("reservedSeats " + reservedSeats);
+			for (int columstart = colnum; columstart <= reservedSeats; columstart++) {
+				System.out.println(" Seats booked for " + customerEmail + " "
+						+ reservedRow + "," + columstart);
+
+				myMultimapSeat.remove(Integer.toString(reservedRow),
+						Integer.toString(columstart));
+				// myMultimapSeat.put(Integer.toString(reservedRow),customerEmail);
 			}
 
-			rowNumAvlSeats = myMultimapSeat.get(Integer.toString(rowNum1));
-			
-			
-			if (rowNumAvlSeats.size() >= reservedSeats) {
-				
+		} else {
+			reservedRow = rowNum1;
+			reservedRow2 = rowNum1 + 1;
+			seatavlrow1 = 10 - rowNumAvlSeats.size();
 
-				reservedRow = rowNum1;
-				System.out.println("reservedRow " + reservedRow);
-				
-				Collection<String> colNumToStart = myMultimapSeat.get(Integer
-						.toString(reservedRow));
-				Object[] colArray = colNumToStart.toArray();
+			int remainingseats = reservedSeats - seatavlrow1;
 
-				int colnum = Integer.parseInt(colArray[0].toString());
-				System.out.println("reservedRow " + reservedRow);
-				System.out.println("colnum " + colnum);
-				System.out.println("reservedSeats " + reservedSeats);
-				for (int columstart = colnum; columstart <= reservedSeats; columstart++) {
-					System.out.println(" Seats booked for "+customerEmail +" "+reservedRow+","+columstart);
-					
-					myMultimapSeat.remove(Integer.toString(reservedRow), Integer.toString(columstart));
-					//myMultimapSeat.put(Integer.toString(reservedRow),customerEmail);
-				}
-				
-			}else{
-				reservedRow = rowNum1;
-				reservedRow2 = rowNum1+1;
-				seatavlrow1 = 10 - rowNumAvlSeats.size();
-				
-				int remainingseats = reservedSeats - seatavlrow1;
-				
-				
-				Collection<String> colNumToStart = myMultimapSeat.get(Integer
-						.toString(reservedRow));
-				Object[] colArray = colNumToStart.toArray();
+			Collection<String> colNumToStart = myMultimapSeat.get(Integer
+					.toString(reservedRow));
+			Object[] colArray = colNumToStart.toArray();
 
-				int colnum = Integer.parseInt(colArray[0].toString());
-				System.out.println("reservedRow " + reservedRow);
-				System.out.println("colnum " + colnum);
-				System.out.println("reservedSeats " + reservedSeats);
-				
-				for (int columstart = colnum; columstart <= 10; columstart++) {
-					System.out.println(" Seats booked for "+customerEmail +" "+reservedRow+","+columstart);
-					
-					myMultimapSeat.remove(Integer.toString(reservedRow), Integer.toString(columstart));
-					//myMultimapSeat.put(Integer.toString(reservedRow),customerEmail);
-				}
-				
-				for (int columstart = 1; columstart <= remainingseats; columstart++) {
-					System.out.println(" Seats booked for "+customerEmail +" "+reservedRow2+","+columstart);
-					
-					myMultimapSeat.remove(Integer.toString(reservedRow2), Integer.toString(columstart));
-					//myMultimapSeat.put(Integer.toString(reservedRow),customerEmail);
-				}
+			int colnum = Integer.parseInt(colArray[0].toString());
+			System.out.println("reservedRow " + reservedRow);
+			System.out.println("colnum " + colnum);
+			System.out.println("reservedSeats " + reservedSeats);
+
+			for (int columstart = colnum; columstart <= 10; columstart++) {
+				System.out.println(" Seats booked for " + customerEmail + " "
+						+ reservedRow + "," + columstart);
+
+				myMultimapSeat.remove(Integer.toString(reservedRow),
+						Integer.toString(columstart));
+				// myMultimapSeat.put(Integer.toString(reservedRow),customerEmail);
 			}
-		
-       
-		
 
-	
+			for (int columstart = 1; columstart <= remainingseats; columstart++) {
+				System.out.println(" Seats booked for " + customerEmail + " "
+						+ reservedRow2 + "," + columstart);
+
+				myMultimapSeat.remove(Integer.toString(reservedRow2),
+						Integer.toString(columstart));
+				// myMultimapSeat.put(Integer.toString(reservedRow),customerEmail);
+			}
+		}
+
+		reservedSeatsFinal = reservedSeatsFinal + reservedSeats;
+
 		System.out.print("\n");
 	}
 
